@@ -13,6 +13,10 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+//TODO
+//builder.Services.AddScoped<ISongService, SongService>();
+//builder.Services.AddScoped<IAlbumService, AlbumService>();
+//builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 
 var app = builder.Build();
 
@@ -34,6 +38,10 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
