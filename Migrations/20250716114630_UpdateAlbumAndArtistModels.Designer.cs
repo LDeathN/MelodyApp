@@ -4,6 +4,7 @@ using MelodyApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MelodyApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250716114630_UpdateAlbumAndArtistModels")]
+    partial class UpdateAlbumAndArtistModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,23 +84,6 @@ namespace MelodyApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Artists");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Queen"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "The Weeknd"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Eminem"
-                        });
                 });
 
             modelBuilder.Entity("MelodyApp.Models.FavoriteSong", b =>
@@ -132,33 +118,6 @@ namespace MelodyApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Genres");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Rock"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Pop"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Hip-Hop"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Jazz"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Electronic"
-                        });
                 });
 
             modelBuilder.Entity("MelodyApp.Models.Song", b =>
@@ -195,32 +154,6 @@ namespace MelodyApp.Migrations
                     b.HasIndex("GenreId");
 
                     b.ToTable("Songs");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ArtistId = 1,
-                            GenreId = 1,
-                            Title = "Bohemian Rhapsody",
-                            Url = "/songs/bohemian_rhapsody.mp3"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            ArtistId = 2,
-                            GenreId = 2,
-                            Title = "Blinding Lights",
-                            Url = "/songs/blinding_lights.mp3"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            ArtistId = 3,
-                            GenreId = 3,
-                            Title = "Lose Yourself",
-                            Url = "/songs/lose_yourself.mp3"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
