@@ -61,6 +61,25 @@ namespace MelodyApp.Data
                     await db.SaveChangesAsync();
                 }
             }
+
+            var secondAdminEmail = "admin2@gmail.com";
+            var secondAdminPassword = "Admin#456"; // Use a strong password
+
+            if (await userManager.FindByEmailAsync(secondAdminEmail) == null)
+            {
+                var secondAdmin = new ApplicationUser
+                {
+                    UserName = secondAdminEmail,
+                    Email = secondAdminEmail,
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(secondAdmin, secondAdminPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(secondAdmin, "Admin");
+                }
+            }
         }
     }
 }
