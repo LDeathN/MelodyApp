@@ -1,5 +1,96 @@
-﻿@{
-	ViewData["Title"] = "Admin Dashboard";
-}
+﻿@using MelodyApp.Models
+@using Microsoft.AspNetCore.Identity
+@model MelodyApp.Models.ViewModels.AdminDashboardViewModel
 
-<h2>Welcome to the Admin Area</h2>
+<h2>Admin Dashboard</h2>
+
+<h3>👤 Users</h3>
+<table class="table">
+    <thead><tr><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
+    <tbody>
+        @foreach (var userWithRole in Model.Users)
+        {
+            var user = userWithRole.User;
+            <tr>
+                <td>@user.Email</td>
+                <td>@string.Join(", ", userWithRole.Roles)</td>
+                <td>
+                    <form asp-action="DeleteUser" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="userId" value="@user.Id" />
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                    <form asp-action="ChangeUserRole" method="post" style="display:inline;">
+                        <input type="hidden" name="userId" value="@user.Id" />
+                        <select name="roleName" class="form-select form-select-sm d-inline w-auto">
+                            @foreach (var role in Model.Roles)
+                            {
+                                <option value="@role.Name">@role.Name</option>
+                            }
+                        </select>
+                        <button class="btn btn-warning btn-sm">Change Role</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>🎵 Songs</h3>
+<table class="table">
+    <thead><tr><th>Title</th><th>Artist</th><th>Genre</th><th>Actions</th></tr></thead>
+    <tbody>
+        @foreach (var song in Model.Songs)
+        {
+            <tr>
+                <td>@song.Title</td>
+                <td>@song.Artist?.Name</td>
+                <td>@song.Genre?.Name</td>
+                <td>
+                    <form asp-action="DeleteSong" method="post">
+                        <input type="hidden" name="id" value="@song.Id" />
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>💿 Albums</h3>
+<table class="table">
+    <thead><tr><th>Title</th><th>Actions</th></tr></thead>
+    <tbody>
+        @foreach (var album in Model.Albums)
+        {
+            <tr>
+                <td>@album.Title</td>
+                <td>
+                    <form asp-action="DeleteAlbum" method="post">
+                        <input type="hidden" name="id" value="@album.Id" />
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>🎤 Artists</h3>
+<table class="table">
+    <thead><tr><th>Name</th><th>Actions</th></tr></thead>
+    <tbody>
+        @foreach (var artist in Model.Artists)
+        {
+            <tr>
+                <td>@artist.Name</td>
+                <td>
+                    <form asp-action="DeleteArtist" method="post">
+                        <input type="hidden" name="id" value="@artist.Id" />
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

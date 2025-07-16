@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
-    <Folder Include="ViewModels\" />
     <Folder Include="Views\Album\" />
     <Folder Include="Views\Song\" />
   </ItemGroup>
