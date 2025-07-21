@@ -6,9 +6,9 @@
 
         public string Title { get; set; } = null!;
 
-        public string CoverUrl { get; set; } = null!;
+        public string CoverImageUrl { get; set; } = null!;
 
-        public string ArtistName { get; set; } = null!;
+        public string UserId { get; set; } = null!;
 
         public int SongCount { get; set; }
     }
