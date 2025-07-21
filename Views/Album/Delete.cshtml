@@ -1,0 +1,21 @@
+﻿@model MelodyApp.Models.ViewModels.AlbumViewModel
+
+@{
+    ViewData["Title"] = "Delete Album";
+}
+
+<h2>Delete Album</h2>
+
+<p>Are you sure you want to delete the album <strong>@Model.Title</strong>?</p>
+
+<div>
+    <img src="@Model.CoverImageUrl" alt="@Model.Title" style="max-height: 100px;" />
+    <p>User ID: @Model.UserId</p>
+    <p>Songs Count: @Model.SongCount</p>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

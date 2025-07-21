@@ -1,0 +1,15 @@
+﻿@model MelodyApp.Models.ViewModels.AlbumViewModel
+
+@{
+    ViewData["Title"] = "Album Details";
+}
+
+<h2>@Model.Title</h2>
+
+<img src="@Model.CoverImageUrl" alt="@Model.Title" style="max-height: 200px;" />
+
+<p><strong>User ID:</strong> @Model.UserId</p>
+<p><strong>Number of Songs:</strong> @Model.SongCount</p>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>
