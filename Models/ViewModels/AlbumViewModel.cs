@@ -10,6 +10,8 @@
 
         public string UserId { get; set; } = null!;
 
+        public string ArtistName { get; set; } = null!;
+
         public int SongCount { get; set; }
     }
 }

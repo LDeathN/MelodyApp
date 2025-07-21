@@ -24,7 +24,7 @@ namespace MelodyApp.Services
                 {
                     Id = a.Id,
                     Title = a.Title,
-                    CoverUrl = a.CoverImageUrl,
+                    CoverImageUrl = a.CoverImageUrl,
                     ArtistName = a.User.UserName,
                     SongCount = a.AlbumSongs.Count
                 })
@@ -74,7 +74,7 @@ namespace MelodyApp.Services
             {
                 Id = album.Id,
                 Title = album.Title,
-                CoverUrl = album.CoverImageUrl,
+                CoverImageUrl = album.CoverImageUrl,
                 ArtistName = album.User.UserName,
                 SongCount = album.AlbumSongs.Count
             };

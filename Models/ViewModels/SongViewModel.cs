@@ -2,11 +2,11 @@
 {
     public class SongViewModel
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         public string Title { get; set; }
 
-        public string Artist { get; set; }
+        public string ArtistName { get; set; }
 
         public string? AlbumName { get; set; }
 
