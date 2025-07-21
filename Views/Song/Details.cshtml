@@ -1,0 +1,16 @@
+﻿@model MelodyApp.Models.Song
+
+<h2>Song Details</h2>
+
+<div>
+    <h4>@Model.Title</h4>
+    <p><strong>Artist:</strong> @Model.Artist?.Name</p>
+    <p><strong>Genre:</strong> @Model.Genre?.Name</p>
+
+    <audio controls>
+        <source src="@Model.Url" type="audio/mpeg" />
+        Your browser does not support the audio element.
+    </audio>
+</div>
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Back to List</a>

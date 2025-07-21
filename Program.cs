@@ -1,6 +1,7 @@
 using MelodyApp.Data;
 using MelodyApp.Models;
 using MelodyApp.Services;
+using MelodyApp.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 //TODO
-//builder.Services.AddScoped<ISongService, SongService>();
+builder.Services.AddScoped<ISongService, SongService>();
 //builder.Services.AddScoped<IAlbumService, AlbumService>();
 //builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 

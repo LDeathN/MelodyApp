@@ -23,7 +23,6 @@
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
     <Folder Include="Views\Album\" />
-    <Folder Include="Views\Song\" />
   </ItemGroup>
 
 </Project>
