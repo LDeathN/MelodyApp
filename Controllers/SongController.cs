@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MelodyApp.Controllers
 {
+    [Authorize]
     public class SongController : Controller
     {
         private readonly ISongService _songService;

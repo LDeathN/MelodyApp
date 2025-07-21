@@ -1,9 +1,11 @@
 ﻿using MelodyApp.Models.ViewModels;
 using MelodyApp.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MelodyApp.Controllers
 {
+    [Authorize]
     public class AlbumController : Controller
     {
         private readonly IAlbumService albumService;

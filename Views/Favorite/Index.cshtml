@@ -1,0 +1,31 @@
+﻿@model IEnumerable<MelodyApp.Models.ViewModels.SongViewModel>
+
+<h2>Your Favorite Songs</h2>
+
+@if (!Model.Any())
+{
+    <p>You have no favorite songs yet.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr><th>Title</th><th>Artist</th><th>Genre</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var song in Model)
+            {
+                <tr>
+                    <td>@song.Title</td>
+                    <td>@song.ArtistName</td>
+                    <td>
+                        <form asp-action="Remove" method="post" asp-controller="Favorites">
+                            <input type="hidden" name="songId" value="@song.Id" />
+                            <button class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
