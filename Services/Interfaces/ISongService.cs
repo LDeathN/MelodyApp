@@ -8,10 +8,9 @@ namespace MelodyApp.Services.Interfaces
     {
         Task<List<Song>> GetAllSongsAsync();
         Task<Song?> GetByIdAsync(int id);
-        Task AddAsync(Song song, IFormFile audioFile);
-        Task UpdateAsync(Song song, IFormFile? audioFile = null);
+        Task AddAsync(Song song);
+        Task UpdateAsync(Song song);
         Task DeleteAsync(int id);
         Task<IEnumerable<GenreViewModel>> GetAllGenresAsync();
-
     }
 }

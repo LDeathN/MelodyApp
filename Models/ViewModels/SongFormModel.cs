@@ -1,26 +1,24 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace MelodyApp.Models.ViewModels
 {
     public class SongFormModel
     {
+        public int Id { get; set; }
+
         [Required]
         public string Title { get; set; }
 
+        //[Required]
+        //[Display(Name = "Audio File")]
+        //public IFormFile AudioFile { get; set; }
+
         [Required]
-        public string Artist { get; set; }
+        [Display(Name = "Genre")]
+        public int GenreId { get; set; }
 
-        public string? Description { get; set; }
-
-        [Required]
-        [Display(Name = "Album")]
-        public Guid AlbumId { get; set; }
-
-        // File upload
-        [Display(Name = "Audio File")]
-        public IFormFile? AudioFile { get; set; }
-
-        // Optional: list of available albums for dropdown
-        //public IEnumerable<AlbumViewModel>? Albums { get; set; }
+        // For dropdown
+        public IEnumerable<SelectListItem>? Genres { get; set; }
     }
 }

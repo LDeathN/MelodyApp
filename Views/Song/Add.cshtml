@@ -1,32 +1,21 @@
-﻿@model MelodyApp.Models.Song
+﻿@model MelodyApp.Models.ViewModels.SongFormModel
 
-<h2>Add New Song</h2>
-
-<form asp-action="Create" enctype="multipart/form-data" method="post">
-    <div class="form-group mb-3">
+<form asp-action="Add" method="post" enctype="multipart/form-data">
+    <div class="form-group">
         <label asp-for="Title"></label>
         <input asp-for="Title" class="form-control" />
         <span asp-validation-for="Title" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <label>Audio File</label>
-        <input type="file" name="audioFile" class="form-control" required />
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="ArtistId"></label>
-        <select asp-for="ArtistId" class="form-control" asp-items="ViewBag.Artists"></select>
-        <span asp-validation-for="ArtistId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
+    <div class="form-group">
         <label asp-for="GenreId"></label>
-        <select asp-for="GenreId" class="form-control" asp-items="ViewBag.Genres"></select>
+        <select asp-for="GenreId" asp-items="Model.Genres" class="form-control">
+            <option value="">-- Select Genre --</option>
+        </select>
         <span asp-validation-for="GenreId" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Add Song</button>
+    <button type="submit" class="btn btn-primary">Save</button>
 </form>
 
 @section Scripts {

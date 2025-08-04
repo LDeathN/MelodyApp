@@ -8,8 +8,7 @@ namespace MelodyApp.Models
         [Required]
         public string Title { get; set; } = null!;
 
-        [Required]
-        public string Url { get; set; } = null!;
+        public string? Url { get; set; } = null!;
 
         // Genre relation
         public int GenreId { get; set; }

@@ -10,19 +10,16 @@ namespace MelodyApp.Services
     public class SongService : ISongService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _environment;
 
-        public SongService(ApplicationDbContext context, IWebHostEnvironment environment)
+        public SongService(ApplicationDbContext context)
         {
             _context = context;
-            _environment = environment;
         }
 
         public async Task<List<Song>> GetAllSongsAsync()
         {
             return await _context.Songs
                 .Include(s => s.Genre)
-                .Include(s => s.Artist)
                 .ToListAsync();
         }
 
@@ -30,52 +27,22 @@ namespace MelodyApp.Services
         {
             return await _context.Songs
                 .Include(s => s.Genre)
-                .Include(s => s.Artist)
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public async Task AddAsync(Song song, IFormFile audioFile)
+        public async Task AddAsync(Song song)
         {
-            if (audioFile != null && audioFile.Length > 0)
-            {
-                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
-                Directory.CreateDirectory(uploadsFolder);
-
-                var fileName = Guid.NewGuid() + Path.GetExtension(audioFile.FileName);
-                var filePath = Path.Combine(uploadsFolder, fileName);
-
-                using var stream = new FileStream(filePath, FileMode.Create);
-                await audioFile.CopyToAsync(stream);
-
-                song.Url = $"/uploads/{fileName}";
-            }
-
             _context.Songs.Add(song);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Song song, IFormFile? audioFile = null)
+        public async Task UpdateAsync(Song song)
         {
             var existing = await _context.Songs.FindAsync(song.Id);
             if (existing == null) return;
 
             existing.Title = song.Title;
-            existing.ArtistId = song.ArtistId;
             existing.GenreId = song.GenreId;
-
-            if (audioFile != null && audioFile.Length > 0)
-            {
-                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
-                Directory.CreateDirectory(uploadsFolder);
-
-                var fileName = Guid.NewGuid() + Path.GetExtension(audioFile.FileName);
-                var filePath = Path.Combine(uploadsFolder, fileName);
-
-                using var stream = new FileStream(filePath, FileMode.Create);
-                await audioFile.CopyToAsync(stream);
-
-                existing.Url = $"/uploads/{fileName}";
-            }
 
             _context.Songs.Update(existing);
             await _context.SaveChangesAsync();

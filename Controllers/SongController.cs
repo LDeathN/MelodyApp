@@ -1,7 +1,11 @@
-﻿using MelodyApp.Models;
+﻿using MelodyApp.Data;
+using MelodyApp.Models;
+using MelodyApp.Models.ViewModels;
 using MelodyApp.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace MelodyApp.Controllers
 {
@@ -9,20 +13,20 @@ namespace MelodyApp.Controllers
     public class SongController : Controller
     {
         private readonly ISongService _songService;
+        private readonly ApplicationDbContext _context;
 
-        public SongController(ISongService songService)
+        public SongController(ISongService songService, ApplicationDbContext context)
         {
             _songService = songService;
+            _context = context;
         }
 
-        // GET: Songs
         public async Task<IActionResult> Index()
         {
             var songs = await _songService.GetAllSongsAsync();
             return View(songs);
         }
 
-        // GET: Songs/Details/5
         public async Task<IActionResult> Details(int id)
         {
             var song = await _songService.GetByIdAsync(id);
@@ -30,61 +34,99 @@ namespace MelodyApp.Controllers
             return View(song);
         }
 
-        // GET: Songs/Add
-        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Add()
         {
-            await PopulateDropdownsAsync();
-            return View();
+            var model = new SongFormModel
+            {
+                Genres = await _context.Genres
+                    .Select(g => new SelectListItem
+                    {
+                        Value = g.Id.ToString(),
+                        Text = g.Name
+                    })
+                    .ToListAsync()
+            };
+
+            return View(model);
         }
 
-        // POST: Songs/Add
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(Song song, IFormFile audioFile)
+        public async Task<IActionResult> Add(SongFormModel model)
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdownsAsync();
-                return View(song);
+                model.Genres = await _context.Genres
+                    .Select(g => new SelectListItem
+                    {
+                        Value = g.Id.ToString(),
+                        Text = g.Name
+                    }).ToListAsync();
+
+                return View(model);
             }
 
-            await _songService.AddAsync(song, audioFile);
+            var song = new Song
+            {
+                Title = model.Title,
+                GenreId = model.GenreId,
+                ArtistId = 1,
+            };
+
+            await _songService.AddAsync(song);
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Songs/Edit/5
-        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var song = await _songService.GetByIdAsync(id);
             if (song == null) return NotFound();
 
-            await PopulateDropdownsAsync();
-            return View(song);
+            var model = new SongFormModel
+            {
+                Title = song.Title,
+                GenreId = song.GenreId,
+                Genres = await _context.Genres
+                    .Select(g => new SelectListItem
+                    {
+                        Value = g.Id.ToString(),
+                        Text = g.Name
+                    })
+                    .ToListAsync()
+            };
+
+            return View(model);
         }
 
-        // POST: Songs/Edit/5
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Song song, IFormFile? audioFile)
+        public async Task<IActionResult> Edit(int id, SongFormModel model)
         {
-            if (id != song.Id) return BadRequest();
-
             if (!ModelState.IsValid)
             {
-                await PopulateDropdownsAsync();
-                return View(song);
+                model.Genres = await _context.Genres
+                    .Select(g => new SelectListItem
+                    {
+                        Value = g.Id.ToString(),
+                        Text = g.Name
+                    })
+                    .ToListAsync();
+                return View(model);
             }
 
-            await _songService.UpdateAsync(song, audioFile);
+            var song = new Song
+            {
+                Id = id,
+                Title = model.Title,
+                GenreId = model.GenreId
+            };
+
+            await _songService.UpdateAsync(song);
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Songs/Delete/5
-        [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
             var song = await _songService.GetByIdAsync(id);
@@ -92,23 +134,12 @@ namespace MelodyApp.Controllers
             return View(song);
         }
 
-        // POST: Songs/Delete/5
-        [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _songService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private async Task PopulateDropdownsAsync()
-        {
-            var genres = await _songService.GetAllGenresAsync();
-            ViewBag.Genres = genres;
-
-            // Assuming you also want artists dropdown, you will need a similar method in ISongService and SongService to get artists
-            // For now, you can add a placeholder or add that method next
         }
     }
 }

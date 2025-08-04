@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace MelodyApp.Controllers
 {
     [Authorize]
-    public class FavoritesController : Controller
+    public class FavoriteController : Controller
     {
         private readonly IFavoriteService _favoriteService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public FavoritesController(IFavoriteService favoriteService, UserManager<ApplicationUser> userManager)
+        public FavoriteController(IFavoriteService favoriteService, UserManager<ApplicationUser> userManager)
         {
             _favoriteService = favoriteService;
             _userManager = userManager;
