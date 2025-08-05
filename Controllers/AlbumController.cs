@@ -1,4 +1,5 @@
-﻿using MelodyApp.Models;
+﻿using MelodyApp.Data;
+using MelodyApp.Models;
 using MelodyApp.Models.ViewModels;
 using MelodyApp.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -12,15 +13,20 @@ namespace MelodyApp.Controllers
     public class AlbumController : Controller
     {
         private readonly IAlbumService albumService;
+        private readonly ApplicationDbContext _context;
 
-        public AlbumController(IAlbumService albumService)
+        public AlbumController(IAlbumService albumService, ApplicationDbContext context)
         {
             this.albumService = albumService;
+            this._context = context;
         }
 
         public async Task<IActionResult> Index(string searchTerm)
         {
-            var albumsQuery = _context.Albums.AsQueryable();
+            var albumsQuery = _context.Albums
+                .Include(a => a.User)
+                .Include(a => a.AlbumSongs)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
@@ -28,7 +34,17 @@ namespace MelodyApp.Controllers
                 ViewData["CurrentFilter"] = searchTerm;
             }
 
-            var albums = await albumsQuery.ToListAsync();
+            var albums = await albumsQuery
+                .Select(a => new AlbumViewModel
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    CoverImageUrl = a.CoverImageUrl,
+                    ArtistName = a.User.UserName,
+                    SongCount = a.AlbumSongs.Count
+                })
+                .ToListAsync();
+
             return View(albums);
         }
 
