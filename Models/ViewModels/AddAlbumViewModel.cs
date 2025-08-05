@@ -4,6 +4,8 @@ namespace MelodyApp.Models.ViewModels
 {
     public class AddAlbumViewModel
     {
+        public int Id { get; set; }
+
         [Required]
         [StringLength(100, MinimumLength = 2)]
         public string Title { get; set; } = null!;

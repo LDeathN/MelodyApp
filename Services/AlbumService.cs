@@ -3,6 +3,7 @@ using MelodyApp.Models;
 using MelodyApp.Models.ViewModels;
 using MelodyApp.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace MelodyApp.Services
 {
@@ -89,6 +90,7 @@ namespace MelodyApp.Services
 
             album.Title = model.Title;
             album.CoverImageUrl = model.CoverUrl;
+            album.UserId = model.UserId;
 
             _context.Albums.Update(album);
             await _context.SaveChangesAsync();

@@ -3,6 +3,7 @@ using MelodyApp.Models.ViewModels;
 using MelodyApp.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace MelodyApp.Controllers
 {
@@ -32,12 +33,8 @@ namespace MelodyApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(AddAlbumViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            model.UserId = "1";
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            model.UserId = userId;
 
             await albumService.AddAlbumAsync(model);
             return RedirectToAction(nameof(Index));
@@ -61,10 +58,8 @@ namespace MelodyApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, AddAlbumViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            model.UserId = userId;
 
             await albumService.EditAlbumAsync(id, model);
             return RedirectToAction(nameof(Index));
