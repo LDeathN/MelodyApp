@@ -81,6 +81,16 @@ namespace MelodyApp.Services
             };
         }
 
+        public async Task<Album?> GetAlbumWithSongsByIdAsync(int id)
+        {
+            return await _context.Albums
+                .Include(a => a.User)
+                .Include(a => a.AlbumSongs)
+                    .ThenInclude(asg => asg.Song)
+                        .ThenInclude(s => s.Genre) // if you want the genre name too
+                .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
         public async Task EditAlbumAsync(int id, AddAlbumViewModel model)
         {
             var album = await _context.Albums.FindAsync(id);

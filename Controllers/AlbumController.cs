@@ -84,10 +84,24 @@ namespace MelodyApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var album = await albumService.GetAlbumByIdAsync(id);
+            var album = await albumService.GetAlbumWithSongsByIdAsync(id);
             if (album == null) return NotFound();
 
-            return View(album);
+            var model = new AlbumDetailsViewModel
+            {
+                Id = album.Id,
+                Title = album.Title,
+                CoverImageUrl = album.CoverImageUrl,
+                ArtistName = album.User.UserName,
+                Songs = album.AlbumSongs.Select(asg => new SongInAlbumViewModel
+                {
+                    Id = asg.Song.Id,
+                    Title = asg.Song.Title,
+                    GenreName = asg.Song.Genre?.Name
+                }).ToList()
+            };
+
+            return View(model);
         }
     }
 }

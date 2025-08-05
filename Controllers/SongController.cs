@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace MelodyApp.Controllers
 {
@@ -76,6 +77,66 @@ namespace MelodyApp.Controllers
 
             await _songService.AddAsync(song);
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AddToAlbum(int songId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var albums = await _context.Albums
+                .Where(a => a.UserId == userId)
+                .Select(a => new SelectListItem
+                {
+                    Value = a.Id.ToString(),
+                    Text = a.Title
+                })
+                .ToListAsync();
+
+            var model = new AddSongToAlbumViewModel
+            {
+                SongId = songId,
+                UserAlbums = albums
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToAlbum(AddSongToAlbumViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Reload albums in case of validation error
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                model.UserAlbums = await _context.Albums
+                    .Where(a => a.UserId == userId)
+                    .Select(a => new SelectListItem
+                    {
+                        Value = a.Id.ToString(),
+                        Text = a.Title
+                    })
+                    .ToListAsync();
+
+                return View(model);
+            }
+
+            var exists = await _context.AlbumSongs
+                .AnyAsync(x => x.AlbumId == model.SelectedAlbumId && x.SongId == model.SongId);
+
+            if (!exists)
+            {
+                _context.AlbumSongs.Add(new AlbumSong
+                {
+                    AlbumId = model.SelectedAlbumId,
+                    SongId = model.SongId
+                });
+
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Details", "Song", new { id = model.SongId });
         }
 
         [HttpGet]

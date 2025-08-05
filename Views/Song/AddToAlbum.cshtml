@@ -1,0 +1,20 @@
+﻿@model MelodyApp.Models.ViewModels.AddSongToAlbumViewModel
+
+<h2>Add Song to Album</h2>
+
+<form asp-action="AddToAlbum" method="post">
+    <input type="hidden" asp-for="SongId" />
+
+    <div class="form-group mb-3">
+        <label asp-for="SelectedAlbumId"></label>
+        <select asp-for="SelectedAlbumId" asp-items="Model.UserAlbums" class="form-control"></select>
+        <span asp-validation-for="SelectedAlbumId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add to Album</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,4 +1,5 @@
-﻿using MelodyApp.Models.ViewModels;
+﻿using MelodyApp.Models;
+using MelodyApp.Models.ViewModels;
 
 namespace MelodyApp.Services.Interfaces
 {
@@ -15,5 +16,7 @@ namespace MelodyApp.Services.Interfaces
         Task EditAlbumAsync(int id, AddAlbumViewModel model);
 
         Task DeleteAlbumAsync(int id);
+
+        Task<Album?> GetAlbumWithSongsByIdAsync(int id);
     }
 }
