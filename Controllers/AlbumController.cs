@@ -1,4 +1,5 @@
-﻿using MelodyApp.Models.ViewModels;
+﻿using MelodyApp.Models;
+using MelodyApp.Models.ViewModels;
 using MelodyApp.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,19 +23,21 @@ namespace MelodyApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Add()
+        public IActionResult Add()
         {
-            var model = await albumService.GetAddAlbumViewModelAsync();
-            return View(model);
+            return View(new AddAlbumViewModel());
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(AddAlbumViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
+
+            model.UserId = "1";
 
             await albumService.AddAlbumAsync(model);
             return RedirectToAction(nameof(Index));
@@ -49,7 +52,6 @@ namespace MelodyApp.Controllers
             var model = new AddAlbumViewModel
             {
                 Title = album.Title,
-                UserId = album.UserId,
                 CoverUrl = album.CoverImageUrl
             };
 

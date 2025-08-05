@@ -53,7 +53,7 @@ namespace MelodyApp.Services
             {
                 Title = model.Title,
                 CoverImageUrl = model.CoverUrl,
-                UserId = model.UserId
+                UserId = model.UserId,
             };
 
             await _context.Albums.AddAsync(album);
@@ -89,7 +89,6 @@ namespace MelodyApp.Services
 
             album.Title = model.Title;
             album.CoverImageUrl = model.CoverUrl;
-            album.UserId = model.UserId;
 
             _context.Albums.Update(album);
             await _context.SaveChangesAsync();

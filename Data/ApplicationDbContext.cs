@@ -3,6 +3,7 @@ using MelodyApp.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MelodyApp.Data
 {
@@ -24,12 +25,12 @@ namespace MelodyApp.Data
                 entity.HasOne(fs => fs.User)
                       .WithMany(u => u.FavoriteSongs)
                       .HasForeignKey(fs => fs.UserId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(fs => fs.Song)
                       .WithMany(s => s.FavoritedBy)
                       .HasForeignKey(fs => fs.SongId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             builder.Entity<AlbumSong>(entity =>
@@ -39,12 +40,12 @@ namespace MelodyApp.Data
                 entity.HasOne(asg => asg.Album)
                       .WithMany(a => a.AlbumSongs)
                       .HasForeignKey(asg => asg.AlbumId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(asg => asg.Song)
                       .WithMany(s => s.AlbumSongs)
                       .HasForeignKey(asg => asg.SongId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             builder.Entity<Artist>(entity =>
@@ -52,7 +53,7 @@ namespace MelodyApp.Data
                 entity.HasMany(a => a.Songs)
                       .WithOne(s => s.Artist)
                       .HasForeignKey(s => s.ArtistId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // 🎤 Seed Artists

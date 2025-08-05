@@ -127,11 +127,20 @@ namespace MelodyApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            var song = await _songService.GetByIdAsync(id);
-            if (song == null) return NotFound();
-            return View(song);
+            var song = await _context.Songs
+                .Include(s => s.AlbumSongs) 
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (song == null)
+                throw new Exception("Song not found");
+
+            _context.AlbumSongs.RemoveRange(song.AlbumSongs);
+
+            _context.Songs.Remove(song);
+
+            await _context.SaveChangesAsync();
         }
 
         [HttpPost, ActionName("Delete")]
