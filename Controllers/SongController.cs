@@ -55,9 +55,14 @@ namespace MelodyApp.Controllers
             return RedirectToAction("Favorites");
         }
 
-        public async Task<IActionResult> Index(string searchTerm)
+        public async Task<IActionResult> Index(string searchTerm, int page = 1)
         {
-            var songsQuery = _context.Songs.AsQueryable();
+            int pageSize = 5;
+
+            var songsQuery = _context.Songs
+                .Include(s => s.Genre)
+                .Include(s => s.Artist)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
@@ -65,7 +70,17 @@ namespace MelodyApp.Controllers
                 ViewData["CurrentFilter"] = searchTerm;
             }
 
-            var songs = await songsQuery.ToListAsync();
+            var totalSongs = await songsQuery.CountAsync();
+
+            var songs = await songsQuery
+                .OrderBy(s => s.Title)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewData["CurrentPage"] = page;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalSongs / (double)pageSize);
+
             return View(songs);
         }
 

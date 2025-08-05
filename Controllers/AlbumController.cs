@@ -21,8 +21,10 @@ namespace MelodyApp.Controllers
             this._context = context;
         }
 
-        public async Task<IActionResult> Index(string searchTerm)
+        public async Task<IActionResult> Index(string searchTerm, int page = 1)
         {
+            int pageSize = 5;
+
             var albumsQuery = _context.Albums
                 .Include(a => a.User)
                 .Include(a => a.AlbumSongs)
@@ -34,7 +36,10 @@ namespace MelodyApp.Controllers
                 ViewData["CurrentFilter"] = searchTerm;
             }
 
+            var totalAlbums = await albumsQuery.CountAsync();
             var albums = await albumsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(a => new AlbumViewModel
                 {
                     Id = a.Id,
@@ -44,6 +49,9 @@ namespace MelodyApp.Controllers
                     SongCount = a.AlbumSongs.Count
                 })
                 .ToListAsync();
+
+            ViewData["CurrentPage"] = page;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalAlbums / (double)pageSize);
 
             return View(albums);
         }

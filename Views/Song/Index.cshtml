@@ -46,3 +46,33 @@
         </div>
     }
 </table>
+@{
+    int currentPage = (int)ViewData["CurrentPage"];
+    int totalPages = (int)ViewData["TotalPages"];
+    string currentFilter = ViewData["CurrentFilter"]?.ToString() ?? "";
+}
+
+<nav aria-label="Song pagination">
+    <ul class="pagination">
+        @if (currentPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-searchTerm="@currentFilter">Previous</a>
+            </li>
+        }
+
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            <li class="page-item @(i == currentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchTerm="@currentFilter">@i</a>
+            </li>
+        }
+
+        @if (currentPage < totalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-searchTerm="@currentFilter">Next</a>
+            </li>
+        }
+    </ul>
+</nav>
