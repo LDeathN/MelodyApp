@@ -1,0 +1,31 @@
+﻿@model IEnumerable<MelodyApp.Models.Song>
+
+<h2>Your Favorite Songs</h2>
+
+@if (!Model.Any())
+{
+    <p>You haven't added any favorite songs yet.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var song in Model)
+        {
+            <div class="song-item mb-3">
+                <h4>@song.Title</h4>
+
+                <form asp-action="RemoveFromFavorites" asp-controller="Song" method="post">
+                    <input type="hidden" name="songId" value="@song.Id" />
+                    <button type="submit" class="btn btn-danger">Remove from Favorites</button>
+                </form>
+            </div>
+        }
+    </ul>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}

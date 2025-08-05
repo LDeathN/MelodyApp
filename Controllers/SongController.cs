@@ -22,17 +22,51 @@ namespace MelodyApp.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        [Authorize]
+        public async Task<IActionResult> Favorites()
         {
-            var songs = await _songService.GetAllSongsAsync();
-            return View(songs);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var favorites = await _context.FavoriteSongs
+                .Where(fs => fs.UserId == userId)
+                .Select(fs => fs.Song)
+                .ToListAsync();
+
+            return View(favorites);
         }
 
-        public async Task<IActionResult> Details(int id)
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> RemoveFromFavorites(int songId)
         {
-            var song = await _songService.GetByIdAsync(id);
-            if (song == null) return NotFound();
-            return View(song);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var favorite = await _context.FavoriteSongs
+                .FirstOrDefaultAsync(fs => fs.SongId == songId && fs.UserId == userId);
+
+            if (favorite != null)
+            {
+                _context.FavoriteSongs.Remove(favorite);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Removed from favorites!";
+            }
+
+            return RedirectToAction("Favorites");
+        }
+
+        public async Task<IActionResult> Index(string searchTerm)
+        {
+            var songsQuery = _context.Songs.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                songsQuery = songsQuery.Where(s => s.Title.Contains(searchTerm));
+                ViewData["CurrentFilter"] = searchTerm;
+            }
+
+            var songs = await songsQuery.ToListAsync();
+            return View(songs);
         }
 
         [HttpGet]
@@ -209,6 +243,32 @@ namespace MelodyApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _songService.DeleteAsync(id);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AddToFavorites(int songId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            TempData["SuccessMessage"] = "Added to favorites!";
+
+            var alreadyFavorite = await _context.FavoriteSongs
+                .AnyAsync(fs => fs.SongId == songId && fs.UserId == userId);
+
+            if (!alreadyFavorite)
+            {
+                var favorite = new FavoriteSong
+                {
+                    SongId = songId,
+                    UserId = userId
+                };
+
+                _context.FavoriteSongs.Add(favorite);
+                await _context.SaveChangesAsync();
+            }
+
             return RedirectToAction(nameof(Index));
         }
     }

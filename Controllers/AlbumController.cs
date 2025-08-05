@@ -3,6 +3,7 @@ using MelodyApp.Models.ViewModels;
 using MelodyApp.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace MelodyApp.Controllers
@@ -17,9 +18,17 @@ namespace MelodyApp.Controllers
             this.albumService = albumService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTerm)
         {
-            var albums = await albumService.GetAllAlbumsAsync();
+            var albumsQuery = _context.Albums.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                albumsQuery = albumsQuery.Where(a => a.Title.Contains(searchTerm));
+                ViewData["CurrentFilter"] = searchTerm;
+            }
+
+            var albums = await albumsQuery.ToListAsync();
             return View(albums);
         }
 
