@@ -1,96 +1,167 @@
 ﻿@using MelodyApp.Models
-@using Microsoft.AspNetCore.Identity
 @model MelodyApp.Models.ViewModels.AdminDashboardViewModel
 
-<h2>Admin Dashboard</h2>
+<div class="container py-4">
+    <h2 class="mb-4 text-center">🛠️ Admin Dashboard</h2>
 
-<h3>👤 Users</h3>
-<table class="table">
-    <thead><tr><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
-    <tbody>
-        @foreach (var userWithRole in Model.Users)
-        {
-            var user = userWithRole.User;
-            <tr>
-                <td>@user.Email</td>
-                <td>@string.Join(", ", userWithRole.Roles)</td>
-                <td>
-                    <form asp-action="DeleteUser" method="post" style="display:inline;">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="userId" value="@user.Id" />
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                    <form asp-action="ChangeUserRole" method="post" style="display:inline;">
-                        <input type="hidden" name="userId" value="@user.Id" />
-                        <select name="roleName" class="form-select form-select-sm d-inline w-auto">
-                            @foreach (var role in Model.Roles)
-                            {
-                                <option value="@role.Name">@role.Name</option>
-                            }
-                        </select>
-                        <button class="btn btn-warning btn-sm">Change Role</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-<h3>🎵 Songs</h3>
-<table class="table">
-    <thead><tr><th>Title</th><th>Artist</th><th>Genre</th><th>Actions</th></tr></thead>
-    <tbody>
-        @foreach (var song in Model.Songs)
-        {
-            <tr>
-                <td>@song.Title</td>
-                <td>@song.Artist?.Name</td>
-                <td>@song.Genre?.Name</td>
-                <td>
-                    <form asp-action="DeleteSong" method="post">
-                        <input type="hidden" name="id" value="@song.Id" />
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <!-- USERS SECTION -->
+    <div class="card mb-5 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            👤 Users
+        </div>
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Email</th>
+                        <th>Role(s)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var userWithRole in Model.Users)
+                    {
+                        var user = userWithRole.User;
+                        <tr>
+                            <td>@user.Email</td>
+                            <td>
+                                @foreach (var role in userWithRole.Roles)
+                                {
+                                    <span class="badge bg-secondary me-1">@role</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <form asp-area="Admin" asp-controller="Admin" asp-action="DeleteUser" asp-route-userId="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                    <form asp-area="Admin" asp-controller="Admin" asp-action="ChangeUserRole" method="post" class="d-inline">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <select name="roleName" class="form-select d-inline w-auto">
+                                            <option value="User" selected>User</option>
+                                            <option value="Admin">Admin</option>
+                                        </select>
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-primary btn-sm">Change</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<h3>💿 Albums</h3>
-<table class="table">
-    <thead><tr><th>Title</th><th>Actions</th></tr></thead>
-    <tbody>
-        @foreach (var album in Model.Albums)
-        {
-            <tr>
-                <td>@album.Title</td>
-                <td>
-                    <form asp-action="DeleteAlbum" method="post">
-                        <input type="hidden" name="id" value="@album.Id" />
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <!-- SONGS SECTION -->
+    <div class="card mb-5 shadow-sm">
+        <div class="card-header bg-success text-white">
+            🎵 Songs
+        </div>
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Artist</th>
+                        <th>Genre</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var song in Model.Songs)
+                    {
+                        <tr>
+                            <td>@song.Title</td>
+                            <td>@song.Artist?.Name</td>
+                            <td>@song.Genre?.Name</td>
+                            <td>
+                                <form asp-action="Delete" asp-route-id="@song.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this song?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>       
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<h3>🎤 Artists</h3>
-<table class="table">
-    <thead><tr><th>Name</th><th>Actions</th></tr></thead>
-    <tbody>
-        @foreach (var artist in Model.Artists)
-        {
-            <tr>
-                <td>@artist.Name</td>
-                <td>
-                    <form asp-action="DeleteArtist" method="post">
-                        <input type="hidden" name="id" value="@artist.Id" />
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <!-- ALBUMS SECTION -->
+    <div class="card mb-5 shadow-sm">
+        <div class="card-header bg-info text-white">
+            💿 Albums
+        </div>
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var album in Model.Albums)
+                    {
+                        <tr>
+                            <td>@album.Title</td>
+                            <td>
+                                <form asp-area="Admin" asp-controller="Admin" asp-action="DeleteAlbum" asp-route-id="@album.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this album?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ARTISTS SECTION -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            🎤 Artists
+        </div>
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var artist in Model.Artists)
+                    {
+                        <tr>
+                            <td>@artist.Name</td>
+                            <td>
+                                <form asp-area="Admin" asp-controller="Admin" asp-action="DeleteArtist" asp-route-id="@artist.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this artist?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

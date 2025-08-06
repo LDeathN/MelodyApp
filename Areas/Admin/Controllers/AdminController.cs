@@ -1,11 +1,10 @@
 ﻿using MelodyApp.Data;
 using MelodyApp.Models;
-using MelodyApp.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static MelodyApp.Models.ViewModels.AdminDashboardViewModel;
+using MelodyApp.Models.ViewModels;
 
 namespace MelodyApp.Areas.Admin.Controllers
 {
@@ -13,84 +12,141 @@ namespace MelodyApp.Areas.Admin.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
 
-        public AdminController(UserManager<ApplicationUser> userManager,
-                               RoleManager<IdentityRole> roleManager,
-                               ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
             _context = context;
         }
 
         public async Task<IActionResult> Index()
         {
-            var users = _userManager.Users.ToList();
-            var userWithRoles = new List<UserWithRoleViewModel>();
+            // Load users with their roles (via UserRoles and Roles tables)
+            var users = await _context.Users.ToListAsync();
 
-            foreach (var user in users)
+            var roles = await _context.Roles.ToListAsync();
+
+            var userRoles = await _context.UserRoles.ToListAsync();
+
+            var userWithRoles = users.Select(user => new UserWithRoleViewModel
             {
-                var roles = await _userManager.GetRolesAsync(user);
-                userWithRoles.Add(new UserWithRoleViewModel
-                {
-                    User = user,
-                    Roles = roles.ToList()
-                });
-            }
+                User = user,
+                Roles = userRoles
+                    .Where(ur => ur.UserId == user.Id)
+                    .Join(roles,
+                          ur => ur.RoleId,
+                          r => r.Id,
+                          (ur, r) => r.Name)
+                    .ToList()
+            }).ToList();
 
             var model = new AdminDashboardViewModel
             {
                 Users = userWithRoles,
-                Roles = _roleManager.Roles.ToList(),
-                Songs = _context.Songs.ToList(),
-                Albums = _context.Albums.ToList(),
-                Artists = _context.Artists.ToList()
+                Roles = roles,
+                Songs = await _context.Songs.Include(s => s.Genre).Include(s => s.Artist).ToListAsync(),
+                Albums = await _context.Albums.ToListAsync(),
+                Artists = await _context.Artists.ToListAsync()
             };
 
             return View(model);
         }
 
+        // ------------ USER METHODS ------------
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUser(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user != null && user.Email != "admin@melodyhub.com") // Protect main admin
+            if (string.IsNullOrEmpty(userId))
             {
-                await _userManager.DeleteAsync(user);
+                // Log or break here — userId is missing from form POST
+                return BadRequest("UserId is null or empty");
             }
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                // Log or break here — no user found for this ID
+                return NotFound("User not found");
+            }
+
+            if (user.Email == "admin@melodyhub.com")
+            {
+                // Protect your main admin
+                return RedirectToAction("Index");
+            }
+
+            // Before deletion, log user info (optional)
+            // Debug.WriteLine($"Deleting user: {user.Email} with ID: {userId}");
+
+            var userRoles = _context.UserRoles.Where(ur => ur.UserId == userId);
+            _context.UserRoles.RemoveRange(userRoles);
+            _context.Users.Remove(user);
+
+            await _context.SaveChangesAsync();
+
             return RedirectToAction("Index");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeUserRole(string userId, string roleName)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(roleName))
+                return BadRequest();
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                return NotFound();
+
+            // Remove existing roles
+            var userRoles = _context.UserRoles.Where(ur => ur.UserId == userId);
+            _context.UserRoles.RemoveRange(userRoles);
+
+            // Find the role by name
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
+            if (role == null)
             {
-                var currentRoles = await _userManager.GetRolesAsync(user);
-                await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                await _userManager.AddToRoleAsync(user, roleName);
+                ModelState.AddModelError("", "Role not found.");
+                return RedirectToAction("Index");
             }
+
+            // Add new role
+            _context.UserRoles.Add(new IdentityUserRole<string>
+            {
+                UserId = userId,
+                RoleId = role.Id
+            });
+
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> DeleteSong(int id)
+        // ------------ SONG METHODS ------------
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteSongConfirmed(int id)
         {
-            var song = await _context.Songs.FindAsync(id);
-            if (song != null)
-            {
-                _context.Songs.Remove(song);
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToAction("Index");
+            var song = await _context.Songs
+                .Include(s => s.AlbumSongs)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (song == null)
+                return NotFound();
+
+            _context.AlbumSongs.RemoveRange(song.AlbumSongs);
+            _context.Songs.Remove(song);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
+        // ------------ ALBUM METHODS ------------
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAlbum(int id)
         {
             var album = await _context.Albums.FindAsync(id);
@@ -102,7 +158,10 @@ namespace MelodyApp.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+        // ------------ ARTIST METHODS ------------
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteArtist(int id)
         {
             var artist = await _context.Artists.FindAsync(id);
@@ -115,3 +174,4 @@ namespace MelodyApp.Areas.Admin.Controllers
         }
     }
 }
+
