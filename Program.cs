@@ -24,7 +24,7 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<ISongService, SongService>();
 builder.Services.AddScoped<IAlbumService, AlbumService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
-
+builder.Environment.EnvironmentName = Environments.Production;
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

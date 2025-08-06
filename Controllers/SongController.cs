@@ -84,6 +84,21 @@ namespace MelodyApp.Controllers
             return View(songs);
         }
 
+        public async Task<IActionResult> Details(int id)
+        {
+            var song = await _context.Songs
+                .Include(s => s.Artist)
+                .Include(s => s.Genre)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (song == null)
+            {
+                return RedirectToAction("NotFoundPage", "Error");
+            }
+
+            return View(song);
+        }
+
         [HttpGet]
         public async Task<IActionResult> Add()
         {
