@@ -7,17 +7,16 @@
 <h2>Albums</h2>
 
 <a asp-action="Add" class="btn btn-primary mb-3">Add New Album</a>
+
 <form asp-action="Index" method="get" class="mb-3 d-flex">
-    <input type="text" name="searchTerm" value="@ViewData["CurrentFilter"]" class="form-control me-2" placeholder="Search songs..." />
+    <input type="text" name="searchTerm" value="@ViewData["CurrentFilter"]" class="form-control me-2" placeholder="Search albums..." />
     <button type="submit" class="btn btn-primary">Search</button>
 </form>
+
 <table class="table table-bordered">
     <thead>
         <tr>
             <th>Title</th>
-            <th>Cover</th>
-            <th>User ID</th>
-            <th>Songs Count</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -27,11 +26,6 @@
             <tr>
                 <td>@album.Title</td>
                 <td>
-                    <img src="@album.CoverImageUrl" alt="@album.Title" style="max-height: 60px;" />
-                </td>
-                <td>@album.UserId</td>
-                <td>@album.SongCount</td>
-                <td>
                     <a asp-action="Details" asp-route-id="@album.Id" class="btn btn-info btn-sm">Details</a>
                     <a asp-action="Edit" asp-route-id="@album.Id" class="btn btn-warning btn-sm">Edit</a>
                     <a asp-action="Delete" asp-route-id="@album.Id" class="btn btn-danger btn-sm">Delete</a>
@@ -40,6 +34,7 @@
         }
     </tbody>
 </table>
+
 @{
     int currentPage = (int)ViewData["CurrentPage"];
     int totalPages = (int)ViewData["TotalPages"];

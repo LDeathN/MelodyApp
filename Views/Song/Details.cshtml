@@ -1,15 +1,23 @@
 ﻿@model MelodyApp.Models.Song
 
-<h2>Song Details</h2>
+@{
+    ViewData["Title"] = "Song Details";
+}
 
-<div>
-    <h4>@Model.Title</h4>
+<div class="text-center mt-4">
+    <h2>@Model.Title</h2>
     <p><strong>Genre:</strong> @Model.Genre?.Name</p>
-
-    <audio controls>
+    <p><strong>Artist:</strong> @Model.Artist?.Name</p>
+    <div>
+        <img src="https://cdn-icons-png.flaticon.com/512/5338/5338726.png" alt="Song cover" class="img-fluid my-3" style="max-height: 300px;" />
+    </div>
+    
+    <audio controls class="my-3" style="width: 100%; max-width: 600px;">
         <source src="@Model.Url" type="audio/mpeg" />
         Your browser does not support the audio element.
     </audio>
-</div>
 
-<a asp-action="Index" class="btn btn-secondary mt-3">Back</a>
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </div>
+</div>

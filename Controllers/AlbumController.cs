@@ -136,5 +136,28 @@ namespace MelodyApp.Controllers
 
             return View(model);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveSongFromAlbum(int albumId, int songId)
+        {
+            var album = await _context.Albums
+                .Include(a => a.AlbumSongs)
+                .FirstOrDefaultAsync(a => a.Id == albumId);
+
+            if (album == null)
+            {
+                return NotFound();
+            }
+
+            var song = album.AlbumSongs.FirstOrDefault(a => a.SongId == songId);
+            if (song != null)
+            {
+                album.AlbumSongs.Remove(song);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Details", new { id = albumId });
+        }
     }
 }

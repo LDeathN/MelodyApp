@@ -15,16 +15,6 @@
         <span asp-validation-for="Title" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <img src="@Model.CoverUrl" alt="Current Cover" style="max-height: 100px;" />
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="CoverUrl"></label>
-        <input asp-for="CoverUrl" type="text" class="form-control"/>
-        <span asp-validation-for="CoverUrl" class="text-danger"></span>
-    </div>
-
     <button type="submit" class="btn btn-primary">Save Changes</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>

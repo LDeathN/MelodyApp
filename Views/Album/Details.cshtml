@@ -4,24 +4,55 @@
     ViewData["Title"] = "Album Details";
 }
 
-<h2>@Model.Title</h2>
-<img src="@Model.CoverImageUrl" class="img-fluid mb-3" style="max-height: 300px;" />
+<div class="container mt-5">
+    <div class="text-center">
+        <h2 class="mb-3">@Model.Title</h2>
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGU3VT7g_-MMJ5c9vysqSVSVoOpdcjiWvmbQ&s" alt="Album Cover" class="img-fluid rounded mb-4" style="max-height: 300px;" />
+    </div>
 
-<h4>Songs in this album:</h4>
+    <h4 class="text-center mb-4">Songs in this Album</h4>
 
-@if (Model.Songs.Any())
-{
-    <ul class="list-group">
-        @foreach (var song in Model.Songs)
-        {
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                @song.Title
-                <span class="badge bg-secondary">@song.GenreName</span>
-            </li>
-        }
-    </ul>
-}
-else
-{
-    <p>No songs in this album yet.</p>
-}
+    @if (Model.Songs.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Title</th>
+                        <th>Genre</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var song in Model.Songs)
+                    {
+                        <tr>
+                            <td>@song.Title</td>
+                            <td>@song.GenreName</td>
+                            <td>
+                                <a asp-controller="Song" asp-action="Details" asp-route-id="@song.Id" class="btn btn-info btn-sm me-2">Details</a>
+
+                                <form asp-action="RemoveSongFromAlbum"
+                                      method="post"
+                                      asp-route-albumId="@Model.Id"
+                                      asp-route-songId="@song.Id"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Are you sure you want to remove this song from the album?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <p class="text-center">No songs in this album yet.</p>
+    }
+
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-secondary">Back to Albums</a>
+    </div>
+</div>
